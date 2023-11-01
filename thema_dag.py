@@ -127,9 +127,15 @@ def thema_crawling():
         thema_lists[line]  =  find_thema(url[idx])
 
 
-    with open('./data/themaju.json', 'w') as json_file:
-        json.dump(thema_lists, json_file, ensure_ascii=False, indent=4)
+    # HDFS 클라이언트 생성
+    client = InsecureClient('http://namenode:9870', user='root')
 
+    # 딕셔너리 데이터를 JSON 문자열로 변환
+    json_str = json.dumps(thema_lists, ensure_ascii=False, indent=4)
+
+    # HDFS에 파일을 작성하고 JSON 문자열을 씁니다.
+    with client.write('/thema/themaju.json', encoding='utf-8') as writer:
+        writer.write(json_str)
 
 
 
