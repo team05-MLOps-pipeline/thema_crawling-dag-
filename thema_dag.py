@@ -133,8 +133,21 @@ def thema_crawling():
     # 딕셔너리 데이터를 JSON 문자열로 변환
     json_str = json.dumps(thema_lists, ensure_ascii=False, indent=4)
 
-    # HDFS에 파일을 작성하고 JSON 문자열을 씁니다.
-    with client.write('/thema/themaju.json', encoding='utf-8') as writer:
+    file_path = '/thema/themaju.json'
+    # 해당 파일이 존재하는지 확인
+    if client.status(file_path, strict=False):
+        # 파일이 존재하면, .bak을 붙여서 백업 파일로 만들기
+        bak_file_path = file_path + '.bak'
+        
+        # 만약 백업 파일이 이미 존재한다면 기존 백업 파일 삭제
+        if client.status(bak_file_path, strict=False):
+            client.delete(bak_file_path)
+        
+        # 파일 이름 변경
+        client.rename(file_path, bak_file_path)
+
+    # 새 파일 쓰기
+    with client.write(file_path, encoding='utf-8') as writer:
         writer.write(json_str)
 
 
